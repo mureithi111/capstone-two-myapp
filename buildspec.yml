@@ -1,0 +1,60 @@
+version: 0.2
+
+env:
+  variables:
+    ECR_REPOSITORY: "myapp-repo"
+    CONTAINER_NAME: "myapp-container"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+    - cd "$CODEBUILD_SRC_DIR"
+    - cd src && npm install && cd ..
+
+  pre_build:
+    commands:
+    - echo "Checking deployment validation script"
+    - test -f scripts/validate_service.sh
+    - echo "Deployment validation script found."
+    - chmod +x scripts/validate_service.sh
+
+    - echo "Running unit tests"
+    - cd "$CODEBUILD_SRC_DIR/src" && npm test
+    - cd "$CODEBUILD_SRC_DIR"
+
+    - echo "Retrieving AWS account ID"
+    - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+    - REPOSITORY_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}"
+    - IMAGE_TAG="${CODEBUILD_RESOLVED_SOURCE_VERSION:0:7}"
+    - echo "Repository URI: ${REPOSITORY_URI}"
+    - echo "Image tag: ${IMAGE_TAG}"
+
+    - echo "Logging in to Amazon ECR"
+    - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "${ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+
+  build:
+    commands:
+    - echo "Building Docker image"
+    - cd "$CODEBUILD_SRC_DIR"
+    - docker build -t "${REPOSITORY_URI}:${IMAGE_TAG}" .
+    - docker tag "${REPOSITORY_URI}:${IMAGE_TAG}" "${REPOSITORY_URI}:latest"
+
+  post_build:
+    commands:
+    - echo "Pushing image to ECR"
+    - docker push "${REPOSITORY_URI}:${IMAGE_TAG}"
+    - docker push "${REPOSITORY_URI}:latest"
+
+    - echo "Generating imageDetail.json"
+    - printf '{"ImageURI":"%s"}' "${REPOSITORY_URI}:${IMAGE_TAG}" > imageDetail.json
+    - cat imageDetail.json
+
+artifacts:
+  files:
+  - appspec.yaml
+  - taskdef.json
+  - imageDetail.json
+  - README.md
+  discard-paths: yes
