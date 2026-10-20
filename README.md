@@ -46,4 +46,4 @@ docker run --rm -p 3001:3001 myapp-local
 Visit `http://localhost:3001/` and `http://localhost:3001/health`.
 
 ## Deployment security notes
-Use IAM roles instead of long-lived AWS keys, keep the task execution role separate from the CodeBuild and CodePipeline roles, and avoid committing credentials. This example uses HTTP on port 80 at the ALB for a learning capstone; production public services should use HTTPS with an ACM certificate.
+Use IAM roles instead of long-lived AWS keys, keep the task execution role separate from the CodeBuild and CodePipeline roles, and avoid committing credentials. This example uses HTTP on port 80 at the ALB; production public services should use HTTPS with an ACM certificate.
