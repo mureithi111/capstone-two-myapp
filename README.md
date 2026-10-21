@@ -1,7 +1,8 @@
-# AWS CI/CD Capstone Week Two — Node.js + ECS Fargate Blue/Green
+# Capstone Week Two — End-to-End CI/CD on AWS
 
 ## Contents
 - `src/`: Express app and npm manifest
+- `scripts`: Contain all bash scripts
 - `src/tests/`: Jest + Supertest unit/integration tests
 - `Dockerfile`: non-root Node.js container
 - `buildspec.yml`: test, build, push to ECR, publish `imageDetail.json`
