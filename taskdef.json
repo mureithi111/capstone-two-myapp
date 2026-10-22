@@ -6,11 +6,11 @@
   ],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::345549356290:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::345549356290:role/ecsTaskExecutionRole-cpas2",
   "containerDefinitions": [
     {
       "name": "myapp-container",
-      "image": "345549356290.dkr.ecr.us-east-1.amazonaws.com/myapp-repo:bootstrap",
+      "image": "345549356290.dkr.ecr.us-east-1.amazonaws.com/myapp-repo:latest",
       "essential": true,
       "portMappings": [
         {
